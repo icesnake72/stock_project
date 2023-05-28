@@ -63,19 +63,23 @@ class StockSearchWin(MainWin):
     self.cbSearched['values'] = ('1','2','3')
     self.cbSearched.current(0)
     self.cbSearched.place(x=466, y=5)
+        
+    # ComboBox 이벤트 처리
+    self.cbSearched.bind("<<ComboboxSelected>>", lambda event : self.eh.OnSearchComboSelected(event, self, self.cbSearched))
     
   def __initLeftPaneLayout(self):
     self.lbFavor = ttk.Label(self.leftPanel, text='즐겨찾기')
     self.lbFavor.pack(side='top', fill='x')
     
     self.lboxFavor = tk.Listbox(self.leftPanel,
-                                width=30,
+                                width=20,
                                 selectmode='single')
     self.lboxFavor.pack(side='top', fill='both', expand=True)
   
   def __initRightPanelLayout(self):
-    width_big:Final = 30
-    width_field:Final = 15
+    width_big:Final = 25
+    width_field:Final = 20
+    width_field_small:Final = 15
     height_mid_panel:Final = 300
     ftBig:Final = 20
     ftNormal = 12
@@ -91,22 +95,25 @@ class StockSearchWin(MainWin):
     self.lbJong.grid(row=1, column=0, columnspan=4, sticky='w')
     
     self.lbValue = ttk.Label(self.rpTopPanel, text='종가', width=width_field, font=(ftMalgun, ftBig), foreground='red')
-    self.lbValue.grid(row=2, column=0, rowspan=2, sticky='nsw')
+    self.lbValue.grid(row=2, column=0, sticky='nsw')
     
-    self.lbValYester = ttk.Label(self.rpTopPanel, text='전일', width=width_field, font=(ftMalgun, ftNormal))
+    self.lbChange = ttk.Label(self.rpTopPanel, text='전일대비', width=width_big+5, font=(ftMalgun, ftNormal), foreground='red')
+    self.lbChange.grid(row=3, column=0, sticky='nsw')
+    
+    self.lbValYester = ttk.Label(self.rpTopPanel, text='전일', width=width_field_small, font=(ftMalgun, ftNormal))
     self.lbValYester.grid(row=2, column=1)
     
-    self.lbValGoga = ttk.Label(self.rpTopPanel, text='고가', width=width_field, font=(ftMalgun, ftNormal))
+    self.lbValGoga = ttk.Label(self.rpTopPanel, text='고가', width=width_big, font=(ftMalgun, ftNormal))
     self.lbValGoga.grid(row=2, column=2)
     
     self.lbValCount = ttk.Label(self.rpTopPanel, text='거래량', font=(ftMalgun, ftNormal))
     # self.lbValCount = ttk.Label(self.rpTopPanel, text='거래량', width=width_field, font=(ftMalgun, ftNormal))
     self.lbValCount.grid(row=2, column=3, sticky='ew')
     
-    self.lbValSiga = ttk.Label(self.rpTopPanel, text='시가', width=width_field, font=(ftMalgun, ftNormal))
+    self.lbValSiga = ttk.Label(self.rpTopPanel, text='시가', width=width_field_small, font=(ftMalgun, ftNormal))
     self.lbValSiga.grid(row=3, column=1)
     
-    self.lbValJeoga = ttk.Label(self.rpTopPanel, text='저가', width=width_field, font=(ftMalgun, ftNormal))
+    self.lbValJeoga = ttk.Label(self.rpTopPanel, text='저가', width=width_big, font=(ftMalgun, ftNormal))
     self.lbValJeoga.grid(row=3, column=2)
     
     self.lbValAmount = ttk.Label(self.rpTopPanel, text='거래대금', width=width_field, font=(ftMalgun, ftNormal))
@@ -117,6 +124,32 @@ class StockSearchWin(MainWin):
     
     self.rpBottomPanel = tk.PanedWindow(self.rightPanel, bg='white')
     self.rpBottomPanel.pack(side='top', fill='both', expand=True)
+    
+    # 일별 주가를 표시할 Treeview 생성
+    self.daysStockList = ttk.Treeview(self.rpBottomPanel, 
+                         columns=("날짜", "종가", "전일비", "시가", "고가", "저가", "거래량"), 
+                         show="headings")
+    # 각 컬럼에 컬럼 헤더 지정
+    self.daysStockList.heading("날짜", text="날짜")
+    self.daysStockList.heading("종가", text="종가")
+    self.daysStockList.heading("전일비", text="전일비")
+    self.daysStockList.heading("시가", text="시가")
+    self.daysStockList.heading("고가", text="고가")
+    self.daysStockList.heading("저가", text="저가")
+    self.daysStockList.heading("거래량", text="거래량")
+    
+    # 각 컬럼의 넓이 지정
+    self.daysStockList.column("날짜", width=80, anchor="e")
+    self.daysStockList.column("종가", width=80, anchor="e")
+    self.daysStockList.column("전일비", width=80, anchor="e")
+    self.daysStockList.column("시가", width=80, anchor="e")
+    self.daysStockList.column("고가", width=80, anchor="e")
+    self.daysStockList.column("저가", width=80, anchor="e")
+    self.daysStockList.column("거래량", width=80, anchor="e")
+    
+    self.daysStockList.pack(side='top', fill='both', expand=True)
+    
+    # self.daysStockList.insert("", "end", values=("2023.05.26", "100,000", "100,000", "100,000", "100,000", "100,000", "100,000"))
     
 
 

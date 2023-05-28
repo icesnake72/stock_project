@@ -74,25 +74,70 @@
 
 # # Tkinter 윈도우 실행
 # window.mainloop()
+
+
+
+
+# import tkinter as tk
+# from tkinter import ttk
+
+# # Tkinter 윈도우 생성
+# window = tk.Tk()
+# window.title("PanedWindow Example")
+
+# # PanedWindow 생성
+# paned_window = ttk.Panedwindow(window, orient=tk.HORIZONTAL)
+# paned_window.pack(fill=tk.BOTH, expand=True)
+
+# # 버튼 생성
+# button = ttk.Button(paned_window, text="Button")
+# paned_window.add(button, weight=1)
+
+# # 콤보 박스 생성
+# combobox = ttk.Combobox(paned_window, values=["Option 1", "Option 2", "Option 3"])
+# paned_window.add(combobox, weight=1)
+
+# # Tkinter 윈도우 실행
+# window.mainloop()
+
+
+
+
 import tkinter as tk
 from tkinter import ttk
 
-# Tkinter 윈도우 생성
+# 윈도우 생성
 window = tk.Tk()
-window.title("PanedWindow Example")
 
-# PanedWindow 생성
-paned_window = ttk.Panedwindow(window, orient=tk.HORIZONTAL)
-paned_window.pack(fill=tk.BOTH, expand=True)
+# Treeview 생성
+tree = ttk.Treeview(window, columns=("column1", "column2"), show="headings")
 
-# 버튼 생성
-button = ttk.Button(paned_window, text="Button")
-paned_window.add(button, weight=1)
+# 각 컬럼에 컬럼 헤더 지정
+tree.heading("column1", text="Column 1")
+tree.heading("column2", text="Column 2")
 
-# 콤보 박스 생성
-combobox = ttk.Combobox(paned_window, values=["Option 1", "Option 2", "Option 3"])
-paned_window.add(combobox, weight=1)
+# 각 컬럼의 넓이 지정
+tree.column("column1", width=100)
+tree.column("column2", width=100)
 
-# Tkinter 윈도우 실행
+# 데이터 추가
+tree.insert("", "end", values=("Value 1", "Value 2"))
+tree.insert("", "end", values=("Value 3", "Value 4"))
+tree.insert("", "end", values=("Value 5", "Value 6"))
+
+# 특정 셀의 태그에 글자 색상 설정
+tree.item("I001", values=("Value 1", "Value 2"), tags=("colored_cell",))
+tree.item("I002", values=("Value 3", "Value 4"), tags=("colored_cell",))
+
+# 색상 설정을 위한 스타일 생성
+tree.tag_configure("colored_cell", foreground="blue")
+
+# 표시
+tree.pack()
+
+# 메인 루프 실행
 window.mainloop()
+
+
+
 

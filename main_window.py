@@ -34,13 +34,13 @@ class MainWin:
   
   @staticmethod
   def get_image_path(image_file_name:str) -> str:
-    print('here')
+    # print('here')
     # 현재 스크립트 파일의 경로 가져오기
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
     # 이미지 파일의 상대 경로 구성
     image_path = os.path.join(script_dir, image_file_name)
-    print(image_path)
+    # print(image_path)
     return image_path
   
   @staticmethod
