@@ -11,7 +11,10 @@ from selenium.common.exceptions import NoSuchElementException
 
 from main_window import MainWin
 from stock_search_window import StockSearchWin
+from stock_data import StockData
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class StockSearchApp:
   def __init__(self, 
@@ -22,6 +25,10 @@ class StockSearchApp:
     self.MainWindow = StockSearchWin(self, title="주식 정보 검색", width=width, height=height)    
     
     self.li_url = {}
+    self.data = StockData()
+    
+    # Figure 객체 생성
+    # self.fig = plt.figure(figsize=(3, 2))
     
   @property
   def Window(self) -> tk.Tk:
@@ -163,6 +170,8 @@ class StockSearchApp:
       
     win.daysStockList.delete(*win.daysStockList.get_children())
     
+    self.data.remove_all()  # 모든 데이터 삭제
+    
     for i in range(1,3):
       url = conf_data['Search URL']
       driver = webdriver.Chrome(options=chrome_options)
@@ -191,8 +200,43 @@ class StockSearchApp:
           listock.append(litmp)
 
       for stock_data in listock:
-        win.daysStockList.insert("", "end", values=stock_data)
-        
+        win.daysStockList.insert("", "end", values=stock_data)  # tree view에 데이터 입력
+        self.data.insert_row(obj.get(), stock_data)   # pandas DataFrame 객체에 데이터 입력
+      
+    # print(self.data.DataFrame) 
+    # 그래프 생성
+    self.data.sort_by(StockData.DATE)
+    
+    win.clear_graph_window()
+    
+    fig, ax = plt.subplots()
+    fig.set_size_inches(3,2)
+    ax.plot(self.data.DataFrame['날짜'], self.data.DataFrame['종가'])
+    
+    # 폰트 설정
+    font = {'family': 'AppleGothic', 'size': 6}
+
+    # 폰트 설정 적용
+    plt.rc('font', **font)
+    
+    # if self.fig.axes:
+    #   if self.ax.lines:
+    #     self.ax.clear()
+    # else:
+    #   self.ax = self.fig.add_subplot(111)
+      
+    ax.tick_params(axis='x', rotation=45)
+    # self.ax.plot(self.data.DataFrame['날짜'], self.data.DataFrame['종가'])
+    # # self.data.DataFrame.plot(x='날짜', y='종가', kind='line', ax=ax)
+    
+    canvas = FigureCanvasTkAgg(fig, master=win.rpMidPanel)
+    canvas.draw()
+    
+    # tkinter 캔버스를 윈도우에 배치
+    canvas.get_tk_widget().pack(side='top', fill='both')
+    
+    # Matplotlib 인스턴스 종료
+    plt.close()
     
     
     

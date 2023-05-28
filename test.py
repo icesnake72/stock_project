@@ -103,41 +103,89 @@
 
 
 
+# import tkinter as tk
+# from tkinter import ttk
+
+# # 윈도우 생성
+# window = tk.Tk()
+
+# # Treeview 생성
+# tree = ttk.Treeview(window, columns=("column1", "column2"), show="headings")
+
+# # 각 컬럼에 컬럼 헤더 지정
+# tree.heading("column1", text="Column 1")
+# tree.heading("column2", text="Column 2")
+
+# # 각 컬럼의 넓이 지정
+# tree.column("column1", width=100)
+# tree.column("column2", width=100)
+
+# # 데이터 추가
+# tree.insert("", "end", values=("Value 1", "Value 2"))
+# tree.insert("", "end", values=("Value 3", "Value 4"))
+# tree.insert("", "end", values=("Value 5", "Value 6"))
+
+# # 특정 셀의 태그에 글자 색상 설정
+# tree.item("I001", values=("Value 1", "Value 2"), tags=("colored_cell",))
+# tree.item("I002", values=("Value 3", "Value 4"), tags=("colored_cell",))
+
+# # 색상 설정을 위한 스타일 생성
+# tree.tag_configure("colored_cell", foreground="blue")
+
+# # 표시
+# tree.pack()
+
+# # 메인 루프 실행
+# window.mainloop()
+
+
+# from stock_data import StockData
+
+# sd = StockData()
+# data = sd.DataFrame
+
+# li = [ col for col in data.columns ]
+# print(li)
+
+# print(data.columns)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
-from tkinter import ttk
+
+# 데이터가 포함된 DataFrame 생성
+data = {'Year': [2010, 2011, 2012, 2013, 2014],
+        'Value': [5, 3, 7, 2, 4]}
+df = pd.DataFrame(data)
 
 # 윈도우 생성
-window = tk.Tk()
+root = tk.Tk()
 
-# Treeview 생성
-tree = ttk.Treeview(window, columns=("column1", "column2"), show="headings")
+# Figure 객체 생성
+fig = plt.figure(figsize=(5, 4))
 
-# 각 컬럼에 컬럼 헤더 지정
-tree.heading("column1", text="Column 1")
-tree.heading("column2", text="Column 2")
+# Axes 객체 생성
+ax = fig.add_subplot(111)
 
-# 각 컬럼의 넓이 지정
-tree.column("column1", width=100)
-tree.column("column2", width=100)
+# 그래프 그리기
+ax.plot(df['Year'], df['Value'])
 
-# 데이터 추가
-tree.insert("", "end", values=("Value 1", "Value 2"))
-tree.insert("", "end", values=("Value 3", "Value 4"))
-tree.insert("", "end", values=("Value 5", "Value 6"))
+# 그래프를 Tkinter 윈도우에 표시하기 위한 FigureCanvasTkAgg 객체 생성
+canvas = FigureCanvasTkAgg(fig, master=root)
+canvas.draw()
+canvas.get_tk_widget().pack()
 
-# 특정 셀의 태그에 글자 색상 설정
-tree.item("I001", values=("Value 1", "Value 2"), tags=("colored_cell",))
-tree.item("I002", values=("Value 3", "Value 4"), tags=("colored_cell",))
+# 그래프 지우기
+ax.clear()
 
-# 색상 설정을 위한 스타일 생성
-tree.tag_configure("colored_cell", foreground="blue")
+# 새로운 그래프 그리기
+ax.plot(df['Year'], df['Value'] * 2)
 
-# 표시
-tree.pack()
+# 그래프를 Tkinter 윈도우에 다시 표시하기
+canvas.draw()
 
-# 메인 루프 실행
-window.mainloop()
-
-
+# Tkinter 윈도우 실행
+root.mainloop()
 
 

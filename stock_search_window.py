@@ -13,6 +13,9 @@ class StockSearchWin(MainWin):
                resize: tuple = (True, True)) -> None:
     super().__init__(title, width, height, resize)
     self.eh = event_handler
+    
+  def __del__(self):
+    self.clear_graph_window()
   
   
   def _initLayout(self):
@@ -151,6 +154,9 @@ class StockSearchWin(MainWin):
     
     # self.daysStockList.insert("", "end", values=("2023.05.26", "100,000", "100,000", "100,000", "100,000", "100,000", "100,000"))
     
-
+  def clear_graph_window(self):
+    # PanedWindow 내부의 모든 위젯 완전히 삭제
+    for widget in self.rpMidPanel.winfo_children():
+      widget.destroy()
 
 
