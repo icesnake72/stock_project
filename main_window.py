@@ -27,6 +27,10 @@ class MainWin:
     self._initLayout()    # 상속받는 클래스에서 _initLayout()메소드를 무조건 구현해야함, 규칙을 만듬
     self.set_min_size()   # 최소사이즈를 초기화함
     
+    # Tkinter로 생성한 메인 윈도우가 닫히기 직전에 수행될 메소드, 
+    # 일반적으로 할당된 자원들을 해제하기 위해 호출됨
+    self._win.protocol("WM_DELETE_WINDOW", self._OnClosingMainWindow)
+    
     
   @property
   def Window(self) -> tk.Tk:
@@ -35,6 +39,10 @@ class MainWin:
   
   def set_min_size(self, width:int=300, height:int=300) -> None:
     self._win.minsize(width, height)
+    
+  # @abstractmethod
+  def _OnClosingMainWindow(self):
+    self._win.destroy()
     
     
   @abstractmethod

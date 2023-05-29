@@ -22,7 +22,7 @@ class StockSearchWin(MainWin):
     
   def __del__(self):
     '''메인 윈도우가 제거될때 matplotlib에서 생성한 윈도우들도 같이 제거해줘야 됨!!! (필수)'''
-    self.clear_graph_window() # matplotlib에서 생성한 윈도우 제거함
+    # self.clear_graph_window() # matplotlib에서 생성한 윈도우 제거함
   
   
   def _initLayout(self):
@@ -86,6 +86,16 @@ class StockSearchWin(MainWin):
         
     # ComboBox가 선택될때 이벤트 처리, Controller 객체의 OnSearchComboSelected 메소드를 호출함
     self.cbSearched.bind("<<ComboboxSelected>>", lambda event : self.eh.OnSearchComboSelected(event, self, self.cbSearched))
+    
+    # 즐겨찾기 버튼 생성
+    self.btnAddFavor = ttk.Button(self.topPanel, 
+                                  text='즐겨찾기',                                   
+                                  width=10,                                                                  
+                                  command=lambda:self.eh.OnAddFavorButtonClick(self, self.btnAddFavor)
+                                )
+    
+    self.btnAddFavor.place(x=672, y=1)   # place()를 이용해 배치함
+    
     
   def __initLeftPaneLayout(self):
     '''left 영역 하위의 위젯들 생성 및 배치'''
@@ -194,9 +204,17 @@ class StockSearchWin(MainWin):
     
     # self.daysStockList.insert("", "end", values=("2023.05.26", "100,000", "100,000", "100,000", "100,000", "100,000", "100,000"))
     
-  def clear_graph_window(self):
+  def clear_graph_window(self):    
     '''PanedWindow 내부의 모든 위젯 완전히 삭제'''
     for widget in self.rpMidPanel.winfo_children():
-      widget.destroy()
+      try:
+        widget.destroy()
+      except:
+        print(f'{widget}.destroy() 에서 에러가 발생함')
+        
+        
+  def _OnClosingMainWindow(self):
+    self.clear_graph_window()
+    super()._OnClosingMainWindow()
 
 

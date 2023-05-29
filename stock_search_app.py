@@ -57,8 +57,8 @@ class StockSearchApp:
     chrome_options.add_argument("--disable-gpu")  # GPU 가속 비활성화 옵션 추가
     
     # config file 불러오기
-    config_path = MainWin.get_image_path('config.json')
-    with open(config_path, 'r') as fconf:
+    config_path = MainWin.get_current_path('config.json')
+    with open(config_path, 'r', encoding='utf-8') as fconf:
       conf_data = json.load(fconf)      
     
     # 네이버 증권 홈페이지로 이동    
@@ -88,13 +88,14 @@ class StockSearchApp:
     self.li_url = { elem.text:elem.find_element(By.TAG_NAME, 'a').get_attribute('href') for elem in name_elems }
     win.cbSearched['values'] = list(self.li_url.keys())
     win.cbSearched.current(0)
-    self.__OnSearchComboSelected(win, win.cbSearched)
+    self.__OnSearchComboSelected(win, win.cbSearched.get())
     
     driver.quit()
     
   # 콤보 박스가 선택되었을때 발생하는 이벤트, 여기서 아래에 __OnSearchComboSelected() 메소드를 재호출한다
   def OnSearchComboSelected(self, event, win:StockSearchWin, obj:ttk.Combobox):
-    self.__OnSearchComboSelected(win, obj.get())
+    stock_name:str = obj.get()
+    self.__OnSearchComboSelected(win, stock_name=stock_name)
 
   # 
   def __OnSearchComboSelected(self, win:StockSearchWin, stock_name:str):
@@ -171,8 +172,8 @@ class StockSearchApp:
     
     # 트리뷰에 날짜별 주가 입력하기
     # config file 불러오기
-    config_path = MainWin.get_image_path('config.json')
-    with open(config_path, 'r') as fconf:
+    config_path = MainWin.get_current_path('config.json')
+    with open(config_path, 'r', encoding='utf-8') as fconf:
       conf_data = json.load(fconf)     
       
     # tree view에 모든 데이터 삭제
@@ -236,6 +237,22 @@ class StockSearchApp:
     
     # Matplotlib 인스턴스 종료
     plt.close()
+    
+  def OnAddFavorButtonClick(self, win:StockSearchWin, obj:ttk.Button):
+    config_path = MainWin.get_current_path('config.json')
+    with open(config_path, 'r', encoding='utf-8') as fconf:
+      conf_data = json.load(fconf)
+      
+    test = {'삼성전자':'https://finance.naver.com/item/sise.naver?code=005930'}
+    
+    conf_dict = dict(conf_data)
+    conf_dict['Favorite'] = test
+    
+    # JSON 파일로 저장
+    with open('config.json', 'w', encoding='utf-8') as f:
+      json.dump(conf_dict, f, indent=4)
+    
+      
     
     
     
