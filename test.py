@@ -149,43 +149,45 @@
 
 # print(data.columns)
 
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import tkinter as tk
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+# import tkinter as tk
 
-# 데이터가 포함된 DataFrame 생성
-data = {'Year': [2010, 2011, 2012, 2013, 2014],
-        'Value': [5, 3, 7, 2, 4]}
-df = pd.DataFrame(data)
+# # 데이터가 포함된 DataFrame 생성
+# data = {'Year': [2010, 2011, 2012, 2013, 2014],
+#         'Value': [5, 3, 7, 2, 4]}
+# df = pd.DataFrame(data)
 
-# 윈도우 생성
-root = tk.Tk()
+# # 윈도우 생성
+# root = tk.Tk()
 
-# Figure 객체 생성
-fig = plt.figure(figsize=(5, 4))
+# # Figure 객체 생성
+# fig = plt.figure(figsize=(5, 4))
 
-# Axes 객체 생성
-ax = fig.add_subplot(111)
+# # Axes 객체 생성
+# ax = fig.add_subplot(111)
 
-# 그래프 그리기
-ax.plot(df['Year'], df['Value'])
+# # 그래프 그리기
+# ax.plot(df['Year'], df['Value'])
 
-# 그래프를 Tkinter 윈도우에 표시하기 위한 FigureCanvasTkAgg 객체 생성
-canvas = FigureCanvasTkAgg(fig, master=root)
-canvas.draw()
-canvas.get_tk_widget().pack()
+# # 그래프를 Tkinter 윈도우에 표시하기 위한 FigureCanvasTkAgg 객체 생성
+# canvas = FigureCanvasTkAgg(fig, master=root)
+# canvas.draw()
+# canvas.get_tk_widget().pack()
 
-# 그래프 지우기
-ax.clear()
+# # 그래프 지우기
+# ax.clear()
 
-# 새로운 그래프 그리기
-ax.plot(df['Year'], df['Value'] * 2)
+# # 새로운 그래프 그리기
+# ax.plot(df['Year'], df['Value'] * 2)
 
-# 그래프를 Tkinter 윈도우에 다시 표시하기
-canvas.draw()
+# # 그래프를 Tkinter 윈도우에 다시 표시하기
+# canvas.draw()
 
-# Tkinter 윈도우 실행
-root.mainloop()
+# # Tkinter 윈도우 실행
+# root.mainloop()
 
 
+for i in range(1,3):
+  print(i)

@@ -1,3 +1,8 @@
+'''
+Tkinter를 사용하여 윈도우 프로그램을 만들기 위한 기본 메인 윈도우 클래스를 정의함
+여기에서 기본 틀을 만들고 이 클래스를 상속받아 Application에 필요한 메인 윈도우를 만듬
+'''
+
 import os
 import tkinter as tk
 from tkinter import font
@@ -19,28 +24,30 @@ class MainWin:
     self._win.geometry(coordination)
     self._win.resizable(resize[0], resize[1])
     
-    self._initLayout()
-    self.set_min_size()    
+    self._initLayout()    # 상속받는 클래스에서 _initLayout()메소드를 무조건 구현해야함, 규칙을 만듬
+    self.set_min_size()   # 최소사이즈를 초기화함
+    
     
   @property
   def Window(self) -> tk.Tk:
+    '''메인 윈도우 객체를 반환함'''
     return self._win
   
   def set_min_size(self, width:int=300, height:int=300) -> None:
     self._win.minsize(width, height)
     
+    
   @abstractmethod
-  def _initLayout(self): pass
+  def _initLayout(self): pass   # 추상 메소드로서 반드시 상속받는 서브 클래스에서 구현해야됨
   
   @staticmethod
-  def get_image_path(image_file_name:str) -> str:
-    # print('here')
-    # 현재 스크립트 파일의 경로 가져오기
+  def get_current_path(image_file_name:str) -> str:    
+    # 현재 실행 파일의 경로 가져오기
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
     # 이미지 파일의 상대 경로 구성
     image_path = os.path.join(script_dir, image_file_name)
-    # print(image_path)
+    
     return image_path
   
   @staticmethod

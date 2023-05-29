@@ -1,3 +1,10 @@
+'''
+App 객체
+MVC 모델의 Controller 역할을 담당하는 모듈임
+이 모듈에서 앱을 실행함
+'''
+
+
 import time, json
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -85,19 +92,19 @@ class StockSearchApp:
     
     driver.quit()
     
-  #
+  # 콤보 박스가 선택되었을때 발생하는 이벤트, 여기서 아래에 __OnSearchComboSelected() 메소드를 재호출한다
   def OnSearchComboSelected(self, event, win:StockSearchWin, obj:ttk.Combobox):
-    self.__OnSearchComboSelected(win, obj)
+    self.__OnSearchComboSelected(win, obj.get())
 
-  #
-  def __OnSearchComboSelected(self, win:StockSearchWin, obj:ttk.Combobox):
+  # 
+  def __OnSearchComboSelected(self, win:StockSearchWin, stock_name:str):
     '''콤보박스가 선택되면 종목이 선택된것이므로 해당 주식종목 페이지로 이동하여 모든 정보들을 받아와 화면에 출력하도록 한다'''
     
     # 종목명을 설정한다
-    win.lbJong.configure(text=obj.get())
+    win.lbJong.configure(text=stock_name)
     
     # 검색단계에서 추출한 url을 불러온다
-    url = self.li_url[obj.get()]  
+    url = self.li_url[stock_name]  
     
     # Chrome 옵션 설정
     chrome_options = Options()
@@ -168,69 +175,61 @@ class StockSearchApp:
     with open(config_path, 'r') as fconf:
       conf_data = json.load(fconf)     
       
+    # tree view에 모든 데이터 삭제
     win.daysStockList.delete(*win.daysStockList.get_children())
     
-    self.data.remove_all()  # 모든 데이터 삭제
+    # pandas DataFrame객체의 데이터 삭제
+    self.data.remove_all()  
     
-    for i in range(1,3):
-      url = conf_data['Search URL']
-      driver = webdriver.Chrome(options=chrome_options)
-      url += f'/item/sise_day.naver?code={code}&page={i}'
+    for i in range(1,3):  # 1에서 시작, 3-1까지 반복
+      url = conf_data['Search URL']   # Search URL 항목은 네이버 증권 홈페이지임
+      driver = webdriver.Chrome(options=chrome_options) # 크롬을 히든으로 적용
+      url += f'/item/sise_day.naver?code={code}&page={i}' # url을 만듬
       driver.get(url)
       
       time.sleep(1)   # 페이지가 로딩될때까지 잠깐 기다리기
 
-      listock = []
-      tbody = driver.find_element(By.XPATH, '/html/body/table[1]/tbody')
-      trs = tbody.find_elements(By.TAG_NAME, 'tr')
-      for tr in trs:
-        up = True
+      listock = []  # 주식 데이터를 임시 저장할 리스트 생성
+      tbody = driver.find_element(By.XPATH, '/html/body/table[1]/tbody')  # tbody 엘리먼트 찾기
+      trs = tbody.find_elements(By.TAG_NAME, 'tr')  # tbody 엘리먼트 아래 모든 tr 엘리먼트들을 찾음
+      for tr in trs:  # 찾은 모든 tr 엘리먼트들을 순차적으로 반복하면서...
+        up = True   # 일단 상승으로 가정
         try:
-          img = tr.find_element(By.TAG_NAME, 'img')
-          up = True if img.get_attribute('alt')=='하락' else False
+          img = tr.find_element(By.TAG_NAME, 'img')   # tr엘리먼트 하위에 img 엘리먼트가 있는지 검사
+          up = True if img.get_attribute('alt')=='하락' else False  # img엘리먼트가 있고 'alt'속성이 '하락'이라면 up은 False
         except NoSuchElementException:
-          continue
+          continue  # img 엘리먼트를 찾지 못했다면 다음 tr 엘리먼트를 검사, 데이터 열이 아니므로 처리 진행을 할 필요도 없음
         
         try:    
-          attr = tr.get_attribute('onmouseover')
-          litmp = tr.text.split()
+          attr = tr.get_attribute('onmouseover')  # tr엘리먼트에 onmouseover 속성이 있다면 데이터 tr 엘리먼트임
+          litmp = tr.text.split() # tr태그 하위의 모든 텍스트를 가져와 공백으로 분리하여 임시 리스트에 저장
           if not up:
-            litmp[2] = f'-{litmp[2]}'
+            litmp[2] = f'-{litmp[2]}' # up==False이면 즉, 전일대비 하락이면 전일비 항목을 음수로 바꿈
         finally:
-          listock.append(litmp)
+          listock.append(litmp)   # listock 또한 DataFrame에 담기 위한 2차원 List 객체임
 
-      for stock_data in listock:
+      for stock_data in listock:  # 모든 listock 리스트의 아이템들을 순회하며...
         win.daysStockList.insert("", "end", values=stock_data)  # tree view에 데이터 입력
-        self.data.insert_row(obj.get(), stock_data)   # pandas DataFrame 객체에 데이터 입력
-      
-    # print(self.data.DataFrame) 
+        self.data.insert_row(stock_name, stock_data)   # pandas DataFrame 객체에 데이터 입력
+    
     # 그래프 생성
-    self.data.sort_by(StockData.DATE)
+    self.data.sort_by(StockData.DATE)   # 날짜로 재정렬
     
-    win.clear_graph_window()
+    win.clear_graph_window()  # rpMidPanel의 child윈도우들을 삭제함
     
-    fig, ax = plt.subplots()
-    fig.set_size_inches(3,2)
-    ax.plot(self.data.DataFrame['날짜'], self.data.DataFrame['종가'])
+    fig, ax = plt.subplots()  # 피규어는 그래프 윈도우, Axes는 그래프가 실제로 그려지는 영역이다
+    fig.set_size_inches(3,2)  # 피규어의 사이즈를 인치로 지정
+    ax.plot(self.data.DataFrame['날짜'], self.data.DataFrame['종가']) # 그래프의 x, y축 데이터를 지정
     
     # 폰트 설정
     font = {'family': 'AppleGothic', 'size': 6}
 
     # 폰트 설정 적용
     plt.rc('font', **font)
-    
-    # if self.fig.axes:
-    #   if self.ax.lines:
-    #     self.ax.clear()
-    # else:
-    #   self.ax = self.fig.add_subplot(111)
-      
-    ax.tick_params(axis='x', rotation=45)
-    # self.ax.plot(self.data.DataFrame['날짜'], self.data.DataFrame['종가'])
-    # # self.data.DataFrame.plot(x='날짜', y='종가', kind='line', ax=ax)
-    
-    canvas = FigureCanvasTkAgg(fig, master=win.rpMidPanel)
-    canvas.draw()
+     
+    ax.tick_params(axis='x', rotation=45)   # x축의 Lable들을 45도 기울임
+    canvas = FigureCanvasTkAgg(fig, master=win.rpMidPanel)  # 피규어를 이용하여 Tkinter Canvas 객체 생성
+    canvas.draw() # 캔버스에 그래프를 그림
     
     # tkinter 캔버스를 윈도우에 배치
     canvas.get_tk_widget().pack(side='top', fill='both')
