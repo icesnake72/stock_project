@@ -11,6 +11,8 @@ from main_window import MainWin
 
 
 class StockSearchWin(MainWin):
+  INIT_SUBJECT = '종목'
+  
   def __init__(self, 
                event_handler, # 이벤트를 처리할 Controller 객체
                title: str = "Main Window", 
@@ -64,6 +66,8 @@ class StockSearchWin(MainWin):
     self.editSearch = ttk.Entry(self.topPanel,
                                 width=30)
     self.editSearch.grid(row=0, column=1)
+    self.editSearch.bind("<Return>", lambda event : self.eh.OnGoButtonClick(self, self.editSearch))
+
         
     # 버튼에 표시할 이미지 불러옴
     self.icon_image1 = tk.PhotoImage(file=MainWin.get_current_path('go.png'))
@@ -109,6 +113,8 @@ class StockSearchWin(MainWin):
                                 width=20,
                                 selectmode='single')
     self.lboxFavor.pack(side='top', fill='both', expand=True)
+    self.lboxFavor.bind("<<ListboxSelect>>", lambda event : self.eh.OnSearchFavoriteListBoxSelected(event, self, self.lboxFavor))
+
   
   
   def __initRightPanelLayout(self):
@@ -134,7 +140,7 @@ class StockSearchWin(MainWin):
     self.lbCode.grid(row=0, column=0, sticky='w')
         
     # 종목명 레이블 위젯 생성
-    self.lbJong = ttk.Label(self.rpTopPanel, text='종목.........................', width=width_big, font=(ftMalgun, 24, 'bold'))
+    self.lbJong = ttk.Label(self.rpTopPanel, text=StockSearchWin.INIT_SUBJECT, width=width_big, font=(ftMalgun, 24, 'bold'))
     self.lbJong.grid(row=1, column=0, columnspan=4, sticky='w')
     
     # 종가 레이블 위젯 생성
@@ -211,6 +217,12 @@ class StockSearchWin(MainWin):
         widget.destroy()
       except:
         print(f'{widget}.destroy() 에서 에러가 발생함')
+        
+        
+  def insert_list_box_items(self, items):
+    self.lboxFavor.delete(0, tk.END)
+    for item in items:
+      self.lboxFavor.insert(0, item)
         
         
   def _OnClosingMainWindow(self):

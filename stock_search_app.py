@@ -33,13 +33,27 @@ class StockSearchApp:
     
     self.li_url = {}
     self.data = StockData()
-    
-    # Figure 객체 생성
-    # self.fig = plt.figure(figsize=(3, 2))
-    
+        
+    self.load_config_data()
+    self.init_favorite_items() 
+        
   @property
   def Window(self) -> tk.Tk:
     return self.MainWindow.Window
+    
+  
+  def load_config_data(self):
+    # config file 불러오기
+    config_path = MainWin.get_current_path('config.json')
+    with open(config_path, 'r', encoding='utf-8') as fconf:
+      self.conf_data = json.load(fconf)
+      
+      
+  def init_favorite_items(self):
+    if 'Favorite' in self.conf_data:
+      subjects:dict = self.conf_data['Favorite']    
+      self.MainWindow.insert_list_box_items(subjects.keys())    
+  
   
   ###
   # Go 버튼을 클릭했을때 발생한 이벤트를 처리하는 메소드
@@ -57,12 +71,12 @@ class StockSearchApp:
     chrome_options.add_argument("--disable-gpu")  # GPU 가속 비활성화 옵션 추가
     
     # config file 불러오기
-    config_path = MainWin.get_current_path('config.json')
-    with open(config_path, 'r', encoding='utf-8') as fconf:
-      conf_data = json.load(fconf)      
+    # config_path = MainWin.get_current_path('config.json')
+    # with open(config_path, 'r', encoding='utf-8') as fconf:
+    #   conf_data = json.load(fconf)      
     
     # 네이버 증권 홈페이지로 이동    
-    url = conf_data['Search URL']
+    url = self.conf_data['Search URL']
     # driver = webdriver.Chrome()
     driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
@@ -95,6 +109,18 @@ class StockSearchApp:
   # 콤보 박스가 선택되었을때 발생하는 이벤트, 여기서 아래에 __OnSearchComboSelected() 메소드를 재호출한다
   def OnSearchComboSelected(self, event, win:StockSearchWin, obj:ttk.Combobox):
     stock_name:str = obj.get()
+    self.__OnSearchComboSelected(win, stock_name=stock_name)
+    
+  def OnSearchFavoriteListBoxSelected(self, event, win:StockSearchWin, obj:tk.Listbox):
+    # 종목의 날짜별 url을 가져오는 방법이 다름
+    # self.li_url.clear()
+    
+    stock_name:str = obj.get(obj.curselection())    
+        
+    code = self.conf_data['Favorite'][stock_name]
+    add_url = f'https://finance.naver.com/item/sise.naver?code={code}'
+    self.li_url[stock_name] = add_url
+        
     self.__OnSearchComboSelected(win, stock_name=stock_name)
 
   # 
@@ -172,9 +198,9 @@ class StockSearchApp:
     
     # 트리뷰에 날짜별 주가 입력하기
     # config file 불러오기
-    config_path = MainWin.get_current_path('config.json')
-    with open(config_path, 'r', encoding='utf-8') as fconf:
-      conf_data = json.load(fconf)     
+    # config_path = MainWin.get_current_path('config.json')
+    # with open(config_path, 'r', encoding='utf-8') as fconf:
+    #   conf_data = json.load(fconf)     
       
     # tree view에 모든 데이터 삭제
     win.daysStockList.delete(*win.daysStockList.get_children())
@@ -183,7 +209,7 @@ class StockSearchApp:
     self.data.remove_all()  
     
     for i in range(1,3):  # 1에서 시작, 3-1까지 반복
-      url = conf_data['Search URL']   # Search URL 항목은 네이버 증권 홈페이지임
+      url = self.conf_data['Search URL']   # Search URL 항목은 네이버 증권 홈페이지임
       driver = webdriver.Chrome(options=chrome_options) # 크롬을 히든으로 적용
       url += f'/item/sise_day.naver?code={code}&page={i}' # url을 만듬
       driver.get(url)
@@ -239,18 +265,41 @@ class StockSearchApp:
     plt.close()
     
   def OnAddFavorButtonClick(self, win:StockSearchWin, obj:ttk.Button):
-    config_path = MainWin.get_current_path('config.json')
-    with open(config_path, 'r', encoding='utf-8') as fconf:
-      conf_data = json.load(fconf)
+    # config_path = MainWin.get_current_path('config.json')
+    # with open(config_path, 'r', encoding='utf-8') as fconf:
+    #   conf_data = json.load(fconf)    
       
-    test = {'삼성전자':'https://finance.naver.com/item/sise.naver?code=005930'}
+    jong_mok = win.lbJong.cget('text')
+    if jong_mok==StockSearchWin.INIT_SUBJECT:
+      return
     
-    conf_dict = dict(conf_data)
-    conf_dict['Favorite'] = test
+    code:str = win.lbCode.cget('text')
+    index = code.find(':')
+    code = code[index+1:]
+    code = code.strip()
+    
+    subject = {jong_mok:code}
+    
+    if 'Favorite' in self.conf_data:
+      favorite_dic = self.conf_data['Favorite']
+    else:
+      favorite_dic = {}
+      
+    # conf_dict = dict(self.conf_data)
+    favorite_dic.update(subject)
+    
+    self.conf_data['Favorite'] = favorite_dic
     
     # JSON 파일로 저장
     with open('config.json', 'w', encoding='utf-8') as f:
-      json.dump(conf_dict, f, indent=4)
+      json.dump(self.conf_data, f, indent=4)
+      
+    # 환경 파일 다시 로드
+    self.load_config_data()
+      
+    items = win.lboxFavor.get(0, tk.END)  # 리스트 박스내에 모든 데이터들을 가져옴
+    if not jong_mok in items:
+      win.lboxFavor.insert(0, jong_mok)
     
       
     
